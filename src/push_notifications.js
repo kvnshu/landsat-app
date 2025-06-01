@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getMessaging, getToken } from "firebase/messaging";
+import { onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBuRs7XlvnndAdepZtYSO1n69_huk6ocI4",
@@ -16,7 +17,7 @@ const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 const messaging = getMessaging(app);
 const vapidKey =
-  "BGrpJuRZzxmgDpvJvyTntShu6ZmvH3kNh5BAiW9WgTi3Ewh7DXsRmy46H9rix1tDmXuUtLN7VPlt8B-21uSiddc";
+  "BP1xXt2rDxKKnYJgBG9JwI4PRYhyzf4bPzrEU8WqIE5oYBYfmZMm7WHdzw1NqWEknRgewl6LmCw20e-7XxBcssA";
 
 function requestPermission() {
   console.log("Requesting permission...");
@@ -32,19 +33,25 @@ function requestPermission() {
 }
 requestPermission();
 
-// Get registration token. Initially this makes a network call, once retrieved
-// subsequent calls to getToken will return from cache.
-getToken(messaging, { vapidKey: vapidKey }).then((currentToken) => {
-  if (currentToken) {
-    console.log("Current registration token:", currentToken);
-    // Send the token to your server and update the UI if necessary
+getToken(messaging, { vapidKey: vapidKey })
+  .then((currentToken) => {
+    if (currentToken) {
+      console.log(`Current registration token: ${currentToken}`);
+      // Send the token to your server and update the UI if necessary
+      // ...
+    } else {
+      // Show permission request UI
+      console.log(
+        "No registration token available. Request permission to generate one."
+      );
+      // ...
+    }
+  })
+  .catch((err) => {
+    console.log("An error occurred while retrieving token. ", err);
     // ...
-  } else {
-    // Show permission request UI
-    console.log('No registration token available. Request permission to generate one.');
-    // ...
-  }
-}).catch((err) => {
-  console.log('An error occurred while retrieving token. ', err);
-  // ...
+  });
+
+onMessage(messaging, (payload) => {
+  console.log("Message received by app. ", payload);
 });
